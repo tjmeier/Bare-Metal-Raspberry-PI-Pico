@@ -20,15 +20,15 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+BIN_PATH = /bin/
+COMPILER_PATH = /usr/local/arm/bin/
 
- 
-
-CC = arm-none-eabi-gcc
-AR = arm-none-eabi-ar
-AS = arm-none-eabi-as
-OBJCOPY = arm-none-eabi-objcopy
-OBJDUMP = arm-none-eabi-objdump
-OBJSIZE = arm-none-eabi-size
+CC = $(COMPILER_PATH)arm-none-eabi-gcc
+AR = $(COMPILER_PATH)arm-none-eabi-ar
+AS = $(COMPILER_PATH)arm-none-eabi-as
+OBJCOPY = $(COMPILER_PATH)arm-none-eabi-objcopy
+OBJDUMP = $(COMPILER_PATH)arm-none-eabi-objdump
+OBJSIZE = $(COMPILER_PATH)arm-none-eabi-size
 ELF2UF2 = tools/elf2uf2.py
 INSERT_CHECKSUM_INTO_ELF = tools/checksum_pico_elf.py
 INCLUDES = -Idrivers -Ibaremetal/include -Ilib
@@ -57,13 +57,13 @@ NUM_UF2S := $(shell  ls -dq *.uf2 2>/dev/null | wc -l)
 # -----------------------------------------------------------------------------
 
 usage: 
-	@echo To build an application:
-	@echo "     "LIBS=\"list of drivers\" make file.uf2
-	@echo ""
+	@$(BIN_PATH)echo To build an application:
+	@$(BIN_PATH)echo "     "LIBS=\"list of drivers\" make file.uf2
+	@$(BIN_PATH)echo ""
 
 
 clean:
-	-rm -f *.o *.out *.bin *.raw *.elf *.uf2 *.tmp
+	$(BIN_PATH)rm -f *.o *.out *.bin *.raw *.elf *.uf2 *.tmp
 
 %_stage2_boot.o: %_stage2_boot.c
 	$(CC) $(CFLAGSS) -c $< -o $@
@@ -88,14 +88,14 @@ crt0.o: crt0.c
 #_startup.o must be first in link order- else LTO removes IRQ Handlers
 %.out: %.o $(LIBS) crt0.o _$(STAGE2BOOT)_stage2_boot.o
 	$(CC) $(CFLAGS) -T $(LINKSCRIPT) --specs=nano.specs -o $@ $^
-	@echo Generated Program has the following segment sizes:
+	@$(BIN_PATH)echo Generated Program has the following segment sizes:
 	@$(OBJSIZE) $@
 
 board_plugged_in:
 ifeq ($(wildcard /media/$(USER)/RPI-RP2),)
 	$(error Raspberry PI not plugged in or not in program mode)
 else
-	@echo Raspberry Pi Pico found at $(wildcard /media/$(USER)/RPI-RP2)
+	@$(BIN_PATH)echo Raspberry Pi Pico found at $(wildcard /media/$(USER)/RPI-RP2)
 endif
 program: board_plugged_in
 ifeq ($(NUM_UF2S),0)
